@@ -1,0 +1,928 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Invoices - VendorBridge</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="C:\Users\Asus\OneDrive\Desktop\hackathon\static\style.css">
+    <base href="./">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+        <div class="sidebar">
+    <h2>VendorBridge</h2>
+    
+    <!-- User Info (shows after login) -->
+    <div id="userInfo" style="padding: 15px; background: #2a3850; border-radius: 8px; margin-bottom: 20px; display: none;">
+        <p id="userName" style="font-weight: 600; margin-bottom: 5px;"></p>
+        <p id="userEmail" style="font-size: 12px; color: #00c2ff;"></p>
+    </div>
+
+    <a href="./index.html"><i class="fas fa-home"></i> Dashboard</a>
+    <a href="./vendors.html"><i class="fas fa-users"></i> Vendors</a>
+    <a href="./rfq.html"><i class="fas fa-file-invoice"></i> RFQ</a>
+    <a href="./quotations.html"><i class="fas fa-clipboard-list"></i> Quotations</a>
+    <a href="./po.html"><i class="fas fa-shopping-cart"></i> Purchase Orders</a>
+    <a href="./invoices.html"><i class="fas fa-receipt"></i> Invoices</a>
+    <a href="./tracking.html"><i class="fas fa-truck"></i> Tracking</a>
+    
+    <!-- Logout Button -->
+    <a href="#" id="logoutBtn" style="background: #dc3545; margin-top: 20px;"><i class="fas fa-sign-out-alt"></i> Logout</a>
+</div>
+
+<script>
+// Show user info after login
+function showUserInfo() {
+    const currentUser = localStorage.getItem('currentUser');
+    if (currentUser) {
+        const user = JSON.parse(currentUser);
+        document.getElementById('userInfo').style.display = 'block';
+        document.getElementById('userName').textContent = user.name || user.email;
+        document.getElementById('userEmail').textContent = user.email || '';
+    }
+}
+
+// Logout function
+document.getElementById('logoutBtn').addEventListener('click', function() {
+    if (confirm('Are you sure you want to logout?')) {
+        localStorage.removeItem('currentUser');
+        alert('Logged out successfully!');
+        window.location.href = './login.html';
+    }
+});
+
+// Show user info on page load
+showUserInfo();
+</script>
+    
+   
+    <style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 30px;
+    }
+
+    .sidebar {
+        width: 280px;
+        height: 100vh;
+        background: #1e293b;
+        color: white;
+        position: fixed;
+        left: 0;
+        top: 0;
+        box-shadow: 4px 0 15px rgba(0, 0, 0, 0.3);
+        overflow-y: auto;
+    }
+
+    .sidebar h2 {
+        text-align: center;
+        padding: 30px 20px;
+        font-size: 24px;
+        border-bottom: 1px solid #334155;
+        background: #0f172a;
+    }
+
+    .sidebar h2 i {
+        margin-right: 10px;
+        color: #667eea;
+    }
+
+    .sidebar nav {
+        padding: 20px 0;
+    }
+
+    .sidebar nav a {
+        display: block;
+        color: #cbd5e1;
+        text-decoration: none;
+        padding: 15px 25px;
+        transition: all 0.3s ease;
+        border-left: 3px solid transparent;
+        font-size: 15px;
+    }
+
+    .sidebar nav a i {
+        margin-right: 12px;
+        width: 20px;
+        text-align: center;
+    }
+
+    .sidebar nav a:hover {
+        background: #334155;
+        color: white;
+        border-left: 3px solid #667eea;
+        padding-left: 35px;
+    }
+
+    .sidebar nav a.active {
+        background: #334155;
+        color: white;
+        border-left: 3px solid #667eea;
+    }
+
+    .main-content {
+        margin-left: 280px;
+        max-width: 1200px;
+        margin-right: auto;
+    }
+
+    .page-header {
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .page-header h1 {
+        color: #1e293b;
+        font-size: 32px;
+        margin-bottom: 10px;
+    }
+
+    .page-header p {
+        color: #64748b;
+        font-size: 16px;
+    }
+
+    .stats-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .stat-card {
+        background: white;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+    }
+
+    .stat-icon.blue {
+        background: #dbeafe;
+        color: #2563eb;
+    }
+
+    .stat-icon.green {
+        background: #d1fae5;
+        color: #059669;
+    }
+
+    .stat-icon.orange {
+        background: #fed7aa;
+        color: #ea580c;
+    }
+
+    .stat-icon.purple {
+        background: #ede9fe;
+        color: #7c3aed;
+    }
+
+    .stat-info h4 {
+        color: #64748b;
+        font-size: 13px;
+        margin-bottom: 5px;
+        text-transform: uppercase;
+    }
+
+    .stat-info p {
+        color: #1e293b;
+        font-size: 28px;
+        font-weight: 700;
+    }
+
+    .invoice-container {
+        background: white;
+        padding: 40px;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .invoice-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid #667eea;
+    }
+
+    .invoice-header h2 {
+        color: #1e293b;
+        font-size: 24px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .invoice-header h2 i {
+        color: #667eea;
+    }
+
+    .invoice-actions {
+        display: flex;
+        gap: 15px;
+    }
+
+    .action-btn {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .print-btn {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .print-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+    }
+
+    .email-btn {
+        background: #dbeafe;
+        color: #2563eb;
+    }
+
+    .email-btn:hover {
+        background: #2563eb;
+        color: white;
+    }
+
+    .search-add {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 25px;
+    }
+
+    .search-add input {
+        padding: 12px 18px;
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 14px;
+        transition: all 0.3s ease;
+        width: 300px;
+        background: #f8fafc;
+    }
+
+    .search-add input:focus {
+        outline: none;
+        border-color: #667eea;
+        background: white;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .add-btn {
+        padding: 12px 24px;
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .add-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th, td {
+        padding: 18px;
+        border-bottom: 1px solid #e2e8f0;
+        text-align: left;
+    }
+
+    th {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 13px;
+        letter-spacing: 0.5px;
+    }
+
+    tr {
+        transition: all 0.3s ease;
+    }
+
+    tr:hover {
+        background: #f8fafc;
+        transform: scale(1.01);
+    }
+
+    .invoice-id {
+        font-weight: 700;
+        color: #1e293b;
+        font-size: 15px;
+    }
+
+    .invoice-id i {
+        color: #667eea;
+        margin-right: 8px;
+    }
+
+    .po-link {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #2563eb;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .po-link i {
+        color: #667eea;
+    }
+
+    .po-link:hover {
+        text-decoration: underline;
+    }
+
+    .amount {
+        font-weight: 700;
+        color: #059669;
+        font-size: 16px;
+    }
+
+    .amount i {
+        color: #10b981;
+        margin-right: 5px;
+    }
+
+    .status-badge {
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .status-badge i {
+        font-size: 12px;
+    }
+
+    .sent {
+        background: #dbeafe;
+        color: #2563eb;
+    }
+
+    .paid {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .pending {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .overdue {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .actions {
+        display: flex;
+        gap: 8px;
+    }
+
+    .view-btn {
+        padding: 8px 12px;
+        background: #dbeafe;
+        color: #2563eb;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 13px;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .view-btn:hover {
+        background: #2563eb;
+        color: white;
+    }
+
+    .download-btn {
+        padding: 8px 12px;
+        background: #f1f5f9;
+        color: #475569;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 13px;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .download-btn:hover {
+        background: #475569;
+        color: white;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #94a3b8;
+    }
+
+    .empty-state i {
+        font-size: 70px;
+        margin-bottom: 20px;
+        opacity: 0.5;
+    }
+
+    .empty-state p {
+        font-size: 16px;
+    }
+
+    .invoice-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .invoice-modal.active {
+        display: flex;
+    }
+
+    .modal-content {
+        background: white;
+        padding: 40px;
+        border-radius: 15px;
+        max-width: 700px;
+        width: 90%;
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid #667eea;
+    }
+
+    .modal-header h3 {
+        color: #1e293b;
+        font-size: 24px;
+    }
+
+    .close-modal {
+        background: none;
+        border: none;
+        font-size: 24px;
+        color: #64748b;
+        cursor: pointer;
+    }
+
+    .close-modal:hover {
+        color: #1e293b;
+    }
+
+    .invoice-details {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .detail-item {
+        padding: 15px;
+        background: #f8fafc;
+        border-radius: 8px;
+    }
+
+    .detail-item label {
+        color: #64748b;
+        font-size: 13px;
+        margin-bottom: 5px;
+    }
+
+    .detail-item p {
+        color: #1e293b;
+        font-weight: 600;
+        font-size: 16px;
+    }
+
+    .total-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 8px;
+        margin-top: 20px;
+    }
+
+    .total-row label {
+        font-size: 16px;
+        font-weight: 600;
+    }
+
+    .total-row p {
+        font-size: 24px;
+        font-weight: 700;
+    }
+
+    @media (max-width: 768px) {
+        .sidebar {
+            width: 220px;
+        }
+
+        .main-content {
+            margin-left: 220px;
+            padding: 20px;
+        }
+
+        .search-add input {
+            width: 200px;
+        }
+
+        .invoice-actions {
+            flex-direction: column;
+        }
+
+        .invoice-details {
+            grid-template-columns: 1fr;
+        }
+
+        .stats-cards {
+            grid-template-columns: 1fr;
+        }
+
+        th, td {
+            padding: 12px 8px;
+        }
+    }
+    </style>
+
+    <div class="main-content">
+        <div class="page-header">
+            <h1><i class="fas fa-receipt"></i> Invoice Management</h1>
+            <p>View, manage, and track all invoices from vendors</p>
+        </div>
+
+        <div class="stats-cards">
+            <div class="stat-card">
+                <div class="stat-icon blue">
+                    <i class="fas fa-file-invoice"></i>
+                </div>
+                <div class="stat-info">
+                    <h4>Total Invoices</h4>
+                    <p id="totalInvoices">1</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon green">
+                    <i class="fas fa-dollar-sign"></i>
+                </div>
+                <div class="stat-info">
+                    <h4>Total Amount</h4>
+                    <p id="totalAmount">₹50,000</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon orange">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-info">
+                    <h4>Pending</h4>
+                    <p id="pendingInvoices">0</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon purple">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-info">
+                    <h4>Paid</h4>
+                    <p id="paidInvoices">0</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="invoice-container">
+            <div class="invoice-header">
+                <h2><i class="fas fa-list"></i> All Invoices</h2>
+                <div class="invoice-actions">
+                    <button class="action-btn print-btn" onclick="printInvoice()">
+                        <i class="fas fa-print"></i> Print Invoice
+                    </button>
+                    <button class="action-btn email-btn" onclick="sendEmail()">
+                        <i class="fas fa-envelope"></i> Send Email
+                    </button>
+                </div>
+            </div>
+
+            <div class="search-add">
+                <input type="text" id="searchInvoice" placeholder="Search by Invoice ID, PO ID...">
+                <button class="add-btn" onclick="addInvoice()">
+                    <i class="fas fa-plus"></i> Add Invoice
+                </button>
+            </div>
+
+            <table id="invoiceTable">
+                <thead>
+                    <tr>
+                        <th>Invoice ID</th>
+                        <th>PO ID</th>
+                        <th>Vendor</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="invoiceList">
+                    <tr>
+                        <td><span class="invoice-id"><i class="fas fa-hashtag"></i> INV-001</span></td>
+                        <td><a href="#" class="po-link"><i class="fas fa-link"></i> PO-001</a></td>
+                        <td><div style="display: flex; align-items: center; gap: 8px;"><i class="fas fa-building" style="color: #667eea;"></i> ABC Suppliers</div></td>
+                        <td><span class="amount"><i class="fas fa-rupee-sign"></i>50,000</span></td>
+                        <td><span class="status-badge sent"><i class="fas fa-paper-plane"></i> Sent</span></td>
+                        <td>
+                            <div class="actions">
+                                <button class="view-btn" onclick="viewInvoice('INV-001')"><i class="fas fa-eye"></i> View</button>
+                                <button class="download-btn" onclick="downloadInvoice('INV-001')"><i class="fas fa-download"></i> Download</button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div id="emptyState" class="empty-state" style="display: none;">
+                <i class="fas fa-receipt"></i>
+                <p>No invoices yet. Create your first invoice above.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="invoice-modal" id="invoiceModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-file-invoice"></i> Invoice Details</h3>
+                <button class="close-modal" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="invoice-details" id="modalInvoiceDetails">
+            </div>
+            <div class="total-row">
+                <label>Total Amount</label>
+                <p id="modalTotal">₹0</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="C:\Users\Asus\OneDrive\Desktop\hackathon\static\script.js"></script>
+    <script>
+    let invoices = [
+        {
+            id: 'INV-001',
+            poId: 'PO-001',
+            vendor: 'ABC Suppliers',
+            amount: 50000,
+            status: 'Sent',
+            date: '2026-06-01',
+            dueDate: '2026-06-15'
+        }
+    ];
+
+    // Load from localStorage
+    function loadInvoices() {
+        const saved = localStorage.getItem('invoices');
+        if (saved) {
+            invoices = JSON.parse(saved);
+            displayInvoices();
+        }
+    }
+
+    // Save to localStorage
+    function saveInvoices() {
+        localStorage.setItem('invoices', JSON.stringify(invoices));
+        updateStats();
+    }
+
+    // Display invoices
+    function displayInvoices() {
+        const invoiceList = document.getElementById('invoiceList');
+        const emptyState = document.getElementById('emptyState');
+        const invoiceTable = document.getElementById('invoiceTable');
+
+        if (invoices.length === 0) {
+            invoiceTable.style.display = 'none';
+            emptyState.style.display = 'block';
+            return;
+        }
+
+        invoiceTable.style.display = 'table';
+        emptyState.style.display = 'none';
+        invoiceList.innerHTML = '';
+
+        invoices.forEach(inv => {
+            const tr = document.createElement('tr');
+            const statusClass = inv.status.toLowerCase();
+            const statusIcon = getStatusIcon(inv.status);
+
+            tr.innerHTML = `
+                <td><span class="invoice-id"><i class="fas fa-hashtag"></i> ${inv.id}</span></td>
+                <td><a href="#" class="po-link"><i class="fas fa-link"></i> ${inv.poId}</a></td>
+                <td><div style="display: flex; align-items: center; gap: 8px;"><i class="fas fa-building" style="color: #667eea;"></i> ${inv.vendor}</div></td>
+                <td><span class="amount"><i class="fas fa-rupee-sign"></i>${inv.amount.toLocaleString('en-IN')}</span></td>
+                <td><span class="status-badge ${statusClass}"><i class="fas ${statusIcon}"></i> ${inv.status}</span></td>
+                <td>
+                    <div class="actions">
+                        <button class="view-btn" onclick="viewInvoice('${inv.id}')"><i class="fas fa-eye"></i> View</button>
+                        <button class="download-btn" onclick="downloadInvoice('${inv.id}')"><i class="fas fa-download"></i> Download</button>
+                    </div>
+                </td>
+            `;
+            invoiceList.appendChild(tr);
+        });
+
+        updateStats();
+    }
+
+    // Get status icon
+    function getStatusIcon(status) {
+        switch(status.toLowerCase()) {
+            case 'sent': return 'fa-paper-plane';
+            case 'paid': return 'fa-check';
+            case 'pending': return 'fa-clock';
+            case 'overdue': return 'fa-times';
+            default: return 'fa-paper-plane';
+        }
+    }
+
+    // Update statistics
+    function updateStats() {
+        const total = invoices.length;
+        const totalAmount = invoices.reduce((sum, inv) => sum + inv.amount, 0);
+        const pending = invoices.filter(inv => inv.status === 'Pending' || inv.status === 'Sent').length;
+        const paid = invoices.filter(inv => inv.status === 'Paid').length;
+
+        document.getElementById('totalInvoices').textContent = total;
+        document.getElementById('totalAmount').textContent = '₹' + totalAmount.toLocaleString('en-IN');
+        document.getElementById('pendingInvoices').textContent = pending;
+        document.getElementById('paidInvoices').textContent = paid;
+    }
+
+    // Add invoice
+    function addInvoice() {
+        const id = 'INV-' + (invoices.length + 1).toString().padStart(3, '0');
+        const poId = prompt('Enter PO ID:');
+        if (!poId) return;
+
+        const vendor = prompt('Enter Vendor Name:');
+        if (!vendor) return;
+
+        const amount = prompt('Enter Amount:');
+        if (!amount || isNaN(amount)) return;
+
+        const status = prompt('Enter Status (Sent/Paid/Pending/Overdue):', 'Sent');
+
+        const invoice = {
+            id: id,
+            poId: poId,
+            vendor: vendor,
+            amount: parseFloat(amount),
+            status: status || 'Sent',
+            date: new Date().toISOString().split('T')[0],
+            dueDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+        };
+
+        invoices.unshift(invoice);
+        saveInvoices();
+        displayInvoices();
+        alert('Invoice Created Successfully!');
+    }
+
+    // View invoice
+    function viewInvoice(id) {
+        const inv = invoices.find(i => i.id === id);
+        if (inv) {
+            const modalDetails = document.getElementById('modalInvoiceDetails');
+            modalDetails.innerHTML = `
+                <div class="detail-item">
+                    <label>Invoice ID</label>
+                    <p>${inv.id}</p>
+                </div>
+                <div class="detail-item">
+                    <label>PO ID</label>
+                    <p>${inv.poId}</p>
+                </div>
+                <div class="detail-item">
+                    <label>Vendor</label>
+                    <p>${inv.vendor}</p>
+                </div>
+                <div class="detail-item">
+                    <label>Status</label>
+                    <p>${inv.status}</p>
+                </div>
+                <div class="detail-item">
+                    <label>Invoice Date</label>
+                    <p>${inv.date}</p>
+                </div>
+                <div class="detail-item">
+                    <label>Due Date</label>
+                    <p>${inv.dueDate}</p>
+                </div>
+            `;
+            document.getElementById('modalTotal').textContent = '₹' + inv.amount.toLocaleString('en-IN');
+            document.getElementById('invoiceModal').classList.add('active');
+        }
+    }
+
+    // Close modal
+    function closeModal() {
+        document.getElementById('invoiceModal').classList.remove('active');
+    }
+
+    // Download invoice
+    function downloadInvoice(id) {
+        alert('Invoice ' + id + ' downloaded successfully!');
+    }
+
+    // Print invoice
+    function printInvoice() {
+        alert('Invoice print dialog opened!');
+    }
+
+    // Send email
+    function sendEmail() {
+        alert('Email sent to vendor!');
+    }
+
+    // Search invoice
+    document.getElementById('searchInvoice').addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase();
+        const rows = document.querySelectorAll('#invoiceList tr');
+
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(searchTerm) ? '' : 'none';
+        });
+    });
+
+    // Initialize
+    loadInvoices();
+    </script>
+</body>
+</html>

@@ -1,0 +1,558 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Vendors - VendorBridge</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="C:\Users\Asus\OneDrive\Desktop\hackathon\static\style.css">
+    <base href="./">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+        <div class="sidebar">
+    <h2>VendorBridge</h2>
+    
+    <!-- User Info (shows after login) -->
+    <div id="userInfo" style="padding: 15px; background: #2a3850; border-radius: 8px; margin-bottom: 20px; display: none;">
+        <p id="userName" style="font-weight: 600; margin-bottom: 5px;"></p>
+        <p id="userEmail" style="font-size: 12px; color: #00c2ff;"></p>
+    </div>
+
+    <a href="./index.html"><i class="fas fa-home"></i> Dashboard</a>
+    <a href="./vendors.html"><i class="fas fa-users"></i> Vendors</a>
+    <a href="./rfq.html"><i class="fas fa-file-invoice"></i> RFQ</a>
+    <a href="./quotations.html"><i class="fas fa-clipboard-list"></i> Quotations</a>
+    <a href="./po.html"><i class="fas fa-shopping-cart"></i> Purchase Orders</a>
+    <a href="./invoices.html"><i class="fas fa-receipt"></i> Invoices</a>
+    <a href="./tracking.html"><i class="fas fa-truck"></i> Tracking</a>
+    
+    <!-- Logout Button -->
+    <a href="#" id="logoutBtn" style="background: #dc3545; margin-top: 20px;"><i class="fas fa-sign-out-alt"></i> Logout</a>
+</div>
+
+<script>
+// Show user info after login
+function showUserInfo() {
+    const currentUser = localStorage.getItem('currentUser');
+    if (currentUser) {
+        const user = JSON.parse(currentUser);
+        document.getElementById('userInfo').style.display = 'block';
+        document.getElementById('userName').textContent = user.name || user.email;
+        document.getElementById('userEmail').textContent = user.email || '';
+    }
+}
+
+// Logout function
+document.getElementById('logoutBtn').addEventListener('click', function() {
+    if (confirm('Are you sure you want to logout?')) {
+        localStorage.removeItem('currentUser');
+        alert('Logged out successfully!');
+        window.location.href = './login.html';
+    }
+});
+
+// Show user info on page load
+showUserInfo();
+</script>
+    
+    
+    <style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 30px;
+    }
+
+    .sidebar {
+        width: 280px;
+        height: 100vh;
+        background: #1e293b;
+        color: white;
+        position: fixed;
+        left: 0;
+        top: 0;
+        box-shadow: 4px 0 15px rgba(0, 0, 0, 0.3);
+        overflow-y: auto;
+    }
+
+    .sidebar h2 {
+        text-align: center;
+        padding: 30px 20px;
+        font-size: 24px;
+        border-bottom: 1px solid #334155;
+        background: #0f172a;
+    }
+
+    .sidebar h2 i {
+        margin-right: 10px;
+        color: #667eea;
+    }
+
+    .sidebar nav {
+        padding: 20px 0;
+    }
+
+    .sidebar nav a {
+        display: block;
+        color: #cbd5e1;
+        text-decoration: none;
+        padding: 15px 25px;
+        transition: all 0.3s ease;
+        border-left: 3px solid transparent;
+        font-size: 15px;
+    }
+
+    .sidebar nav a i {
+        margin-right: 12px;
+        width: 20px;
+        text-align: center;
+    }
+
+    .sidebar nav a:hover {
+        background: #334155;
+        color: white;
+        border-left: 3px solid #667eea;
+        padding-left: 35px;
+    }
+
+    .sidebar nav a.active {
+        background: #334155;
+        color: white;
+        border-left: 3px solid #667eea;
+    }
+
+    .main {
+        margin-left: 280px;
+        max-width: 1200px;
+        margin-right: auto;
+    }
+
+    .page-header {
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .page-header h1 {
+        color: #1e293b;
+        font-size: 32px;
+        margin-bottom: 10px;
+    }
+
+    .page-header p {
+        color: #64748b;
+        font-size: 16px;
+    }
+
+    .card {
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        margin-bottom: 30px;
+    }
+
+    .card h2 {
+        margin-bottom: 25px;
+        color: #1e293b;
+        font-size: 24px;
+        border-bottom: 2px solid #667eea;
+        padding-bottom: 10px;
+    }
+
+    .card h2 i {
+        margin-right: 10px;
+        color: #667eea;
+    }
+
+    form {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-group.full-width {
+        grid-column: span 2;
+    }
+
+    .form-group label {
+        margin-bottom: 8px;
+        color: #334155;
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    .form-group label i {
+        margin-right: 8px;
+        color: #667eea;
+    }
+
+    input,
+    select {
+        padding: 14px 18px;
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 15px;
+        transition: all 0.3s ease;
+        background: #f8fafc;
+    }
+
+    input:focus,
+    select:focus {
+        outline: none;
+        border-color: #667eea;
+        background: white;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    button {
+        grid-column: span 2;
+        padding: 16px 40px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        margin-top: 10px;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+    }
+
+    button:active {
+        transform: translateY(0);
+    }
+
+    .search-section {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 25px;
+    }
+
+    .search-section input {
+        flex: 1;
+    }
+
+    .search-section button {
+        grid-column: auto;
+        margin-top: 0;
+        padding: 14px 28px;
+        width: auto;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    th, td {
+        padding: 16px;
+        border-bottom: 1px solid #e2e8f0;
+        text-align: left;
+    }
+
+    th {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 13px;
+        letter-spacing: 0.5px;
+    }
+
+    tr:hover {
+        background: #f8fafc;
+    }
+
+    .status-badge {
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 600;
+        display: inline-block;
+    }
+
+    .active {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .pending {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .inactive {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .vendor-list-container {
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .vendor-list-container h3 {
+        color: #1e293b;
+        margin-bottom: 25px;
+        font-size: 24px;
+        border-bottom: 2px solid #667eea;
+        padding-bottom: 10px;
+    }
+
+    .vendor-list-container h3 i {
+        margin-right: 10px;
+        color: #667eea;
+    }
+
+    #vendorList {
+        list-style: none;
+        padding: 0;
+    }
+
+    #vendorList li {
+        background: #f8fafc;
+        padding: 20px;
+        margin-bottom: 15px;
+        border-radius: 8px;
+        border-left: 4px solid #667eea;
+        transition: all 0.3s ease;
+    }
+
+    #vendorList li:hover {
+        background: white;
+        transform: translateX(5px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .vendor-item-name {
+        font-weight: 600;
+        color: #1e293b;
+        font-size: 16px;
+        margin-bottom: 8px;
+    }
+
+    .vendor-item-details {
+        color: #64748b;
+        font-size: 14px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .vendor-item-details span {
+        display: flex;
+        align-items: center;
+    }
+
+    .vendor-item-details i {
+        margin-right: 6px;
+        color: #667eea;
+    }
+
+    @media (max-width: 768px) {
+        .sidebar {
+            width: 220px;
+        }
+
+        .main {
+            margin-left: 220px;
+            padding: 20px;
+        }
+
+        form {
+            grid-template-columns: 1fr;
+        }
+
+        .form-group.full-width {
+            grid-column: span 1;
+        }
+
+        button {
+            grid-column: span 1;
+        }
+    }
+    </style>
+
+    <div class="main">
+        <div class="page-header">
+            <h1><i class="fas fa-users"></i> Vendor Management</h1>
+            <p>Add, manage, and track all your vendors in one place</p>
+        </div>
+
+        <div class="card">
+            <h2><i class="fas fa-user-plus"></i> Add Vendor</h2>
+            <form onsubmit="addVendor(event)">
+                <div class="form-group">
+                    <label><i class="fas fa-building"></i> Vendor Name</label>
+                    <input type="text" id="vendor-name" placeholder="Enter vendor name" required>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-hashtag"></i> GST Number</label>
+                    <input type="text" id="gst-number" placeholder="Enter GST Number" required>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-user"></i> Contact Person</label>
+                    <input type="text" id="contact-person" placeholder="Enter contact person name" required>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-envelope"></i> Email Address</label>
+                    <input type="email" id="email" placeholder="Enter email address" required>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-phone"></i> Phone Number</label>
+                    <input type="tel" id="phone" placeholder="Enter phone number" required>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-layer-group"></i> Category</label>
+                    <select id="category" required>
+                        <option value="">Select Category</option>
+                        <option value="Raw Material">Raw Material</option>
+                        <option value="IT Services">IT Services</option>
+                        <option value="Logistics">Logistics</option>
+                        <option value="Manufacturing">Manufacturing</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-toggle-on"></i> Status</label>
+                    <select id="status" required>
+                        <option value="">Select Status</option>
+                        <option value="Active">Active</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Inactive">Inactive</option>
+                    </select>
+                </div>
+
+                <button type="submit">
+                    <i class="fas fa-check-circle"></i> Register Vendor
+                </button>
+            </form>
+        </div>
+
+        <div class="vendor-list-container">
+            <h3><i class="fas fa-list"></i> Vendor List</h3>
+            
+            <div class="search-section">
+                <input type="text" id="searchVendor" placeholder="Search vendors by name, GST, or email...">
+                <button onclick="searchVendor()" style="grid-column: auto; margin-top: 0; width: auto;">
+                    <i class="fas fa-search"></i> Search
+                </button>
+            </div>
+
+            <ul id="vendorList"></ul>
+        </div>
+    </div>
+
+    <script src="C:\Users\Asus\OneDrive\Desktop\hackathon\static\script.js"></script>
+    <script>
+    // Fetch vendors from backend
+    fetch("http://127.0.0.1:5000/vendors")
+        .then(res => res.json())
+        .then(data => {
+            displayVendors(data);
+        })
+        .catch(err => {
+            console.log('Using local vendor data');
+        });
+
+    function displayVendors(vendors) {
+        const vendorList = document.getElementById('vendorList');
+        vendorList.innerHTML = '';
+        
+        vendors.forEach(v => {
+            const li = document.createElement('li');
+            li.innerHTML = `
+                <div class="vendor-item-name">${v.name}</div>
+                <div class="vendor-item-details">
+                    <span><i class="fas fa-hashtag"></i> GST: ${v.gstNumber}</span>
+                    <span><i class="fas fa-envelope"></i> ${v.email}</span>
+                    <span><i class="fas fa-phone"></i> ${v.phone}</span>
+                    <span><i class="fas fa-layer-group"></i> ${v.category}</span>
+                    <span class="status-badge ${v.status.toLowerCase()}">${v.status}</span>
+                </div>
+            `;
+            vendorList.appendChild(li);
+        });
+    }
+
+    function addVendor(event) {
+        event.preventDefault();
+        
+        const vendorData = {
+            name: document.getElementById('vendor-name').value,
+            gstNumber: document.getElementById('gst-number').value,
+            contactPerson: document.getElementById('contact-person').value,
+            email: document.getElementById('email').value,
+            phone: document.getElementById('phone').value,
+            category: document.getElementById('category').value,
+            status: document.getElementById('status').value
+        };
+
+        // Add vendor to list
+        const vendorList = document.getElementById('vendorList');
+        const li = document.createElement('li');
+        li.innerHTML = `
+            <div class="vendor-item-name">${vendorData.name}</div>
+            <div class="vendor-item-details">
+                <span><i class="fas fa-hashtag"></i> GST: ${vendorData.gstNumber}</span>
+                <span><i class="fas fa-envelope"></i> ${vendorData.email}</span>
+                <span><i class="fas fa-phone"></i> ${vendorData.phone}</span>
+                <span><i class="fas fa-layer-group"></i> ${vendorData.category}</span>
+                <span class="status-badge ${vendorData.status.toLowerCase()}">${vendorData.status}</span>
+            </div>
+        `;
+        vendorList.insertBefore(li, vendorList.firstChild);
+
+        // Show success message
+        alert('Vendor Registered Successfully!');
+        
+        // Reset form
+        event.target.reset();
+    }
+
+    function searchVendor() {
+        const searchTerm = document.getElementById('searchVendor').value.toLowerCase();
+        const vendorItems = document.querySelectorAll('#vendorList li');
+        
+        vendorItems.forEach(item => {
+            const text = item.textContent.toLowerCase();
+            if (text.includes(searchTerm)) {
+                item.style.display = 'block';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    }
+    </script>
+</body>
+</html>

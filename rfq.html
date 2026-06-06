@@ -1,0 +1,419 @@
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>RFQ - VendorBridge</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="C:\Users\Asus\OneDrive\Desktop\hackathon\static\style.css">
+    <base href="./">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+        <div class="sidebar">
+    <h2>VendorBridge</h2>
+    
+    <!-- User Info (shows after login) -->
+    <div id="userInfo" style="padding: 15px; background: #2a3850; border-radius: 8px; margin-bottom: 20px; display: none;">
+        <p id="userName" style="font-weight: 600; margin-bottom: 5px;"></p>
+        <p id="userEmail" style="font-size: 12px; color: #00c2ff;"></p>
+    </div>
+
+    <a href="./index.html"><i class="fas fa-home"></i> Dashboard</a>
+    <a href="./vendors.html"><i class="fas fa-users"></i> Vendors</a>
+    <a href="./rfq.html"><i class="fas fa-file-invoice"></i> RFQ</a>
+    <a href="./quotations.html"><i class="fas fa-clipboard-list"></i> Quotations</a>
+    <a href="./po.html"><i class="fas fa-shopping-cart"></i> Purchase Orders</a>
+    <a href="./invoices.html"><i class="fas fa-receipt"></i> Invoices</a>
+    <a href="./tracking.html"><i class="fas fa-truck"></i> Tracking</a>
+    
+    <!-- Logout Button -->
+    <a href="#" id="logoutBtn" style="background: #dc3545; margin-top: 20px;"><i class="fas fa-sign-out-alt"></i> Logout</a>
+</div>
+
+<script>
+// Show user info after login
+function showUserInfo() {
+    const currentUser = localStorage.getItem('currentUser');
+    if (currentUser) {
+        const user = JSON.parse(currentUser);
+        document.getElementById('userInfo').style.display = 'block';
+        document.getElementById('userName').textContent = user.name || user.email;
+        document.getElementById('userEmail').textContent = user.email || '';
+    }
+}
+
+// Logout function
+document.getElementById('logoutBtn').addEventListener('click', function() {
+    if (confirm('Are you sure you want to logout?')) {
+        localStorage.removeItem('currentUser');
+        alert('Logged out successfully!');
+        window.location.href = './login.html';
+    }
+});
+
+// Show user info on page load
+showUserInfo();
+</script>
+    
+
+   
+
+    <style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+    }
+
+    .sidebar {
+        width: 280px;
+        height: 100vh;
+        background: #1e293b;
+        color: white;
+        position: fixed;
+        left: 0;
+        top: 0;
+        box-shadow: 4px 0 15px rgba(0, 0, 0, 0.3);
+        overflow-y: auto;
+    }
+
+    .sidebar h2 {
+        text-align: center;
+        padding: 30px 20px;
+        font-size: 24px;
+        border-bottom: 1px solid #334155;
+        background: #0f172a;
+    }
+
+    .sidebar h2 i {
+        margin-right: 10px;
+        color: #667eea;
+    }
+
+    .sidebar nav {
+        padding: 20px 0;
+    }
+
+    .sidebar nav a {
+        display: block;
+        color: #cbd5e1;
+        text-decoration: none;
+        padding: 15px 25px;
+        transition: all 0.3s ease;
+        border-left: 3px solid transparent;
+        font-size: 15px;
+    }
+
+    .sidebar nav a i {
+        margin-right: 12px;
+        width: 20px;
+        text-align: center;
+    }
+
+    .sidebar nav a:hover {
+        background: #334155;
+        color: white;
+        border-left: 3px solid #667eea;
+        padding-left: 35px;
+    }
+
+    .sidebar nav a.active {
+        background: #334155;
+        color: white;
+        border-left: 3px solid #667eea;
+    }
+
+    .main-content {
+        margin-left: 280px;
+        padding: 40px;
+        max-width: 1200px;
+    }
+
+    .page-header {
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .page-header h1 {
+        color: #1e293b;
+        font-size: 32px;
+        margin-bottom: 10px;
+    }
+
+    .page-header p {
+        color: #64748b;
+        font-size: 16px;
+    }
+
+    .form-container {
+        background: white;
+        padding: 40px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .form-container h3 {
+        color: #1e293b;
+        margin-bottom: 25px;
+        font-size: 24px;
+        border-bottom: 2px solid #667eea;
+        padding-bottom: 10px;
+    }
+
+    .form-group {
+        margin-bottom: 25px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #334155;
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+        width: 100%;
+        padding: 14px 18px;
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 15px;
+        transition: all 0.3s ease;
+        background: #f8fafc;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+        outline: none;
+        border-color: #667eea;
+        background: white;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .form-group textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    .form-group input[type="file"] {
+        padding: 10px;
+    }
+
+    .form-group input[type="file"]::file-selector-button {
+        padding: 10px 20px;
+        margin-right: 10px;
+        border: none;
+        border-radius: 6px;
+        background: #667eea;
+        color: white;
+        cursor: pointer;
+        transition: background 0.3s ease;
+    }
+
+    .form-group input[type="file"]::file-selector-button:hover {
+        background: #764ba2;
+    }
+
+    .submit-btn {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 16px 40px;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 100%;
+        margin-top: 10px;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+    }
+
+    .submit-btn:active {
+        transform: translateY(0);
+    }
+
+    .rfq-list-container {
+        background: white;
+        padding: 40px;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .rfq-list-container h3 {
+        color: #1e293b;
+        margin-bottom: 25px;
+        font-size: 24px;
+        border-bottom: 2px solid #667eea;
+        padding-bottom: 10px;
+    }
+
+    #rfqList {
+        list-style: none;
+        padding: 0;
+    }
+
+    #rfqList li {
+        background: #f8fafc;
+        padding: 20px;
+        margin-bottom: 15px;
+        border-radius: 8px;
+        border-left: 4px solid #667eea;
+        transition: all 0.3s ease;
+    }
+
+    #rfqList li:hover {
+        background: white;
+        transform: translateX(5px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .rfq-item-title {
+        font-weight: 600;
+        color: #1e293b;
+        font-size: 16px;
+        margin-bottom: 8px;
+    }
+
+    .rfq-item-details {
+        color: #64748b;
+        font-size: 14px;
+    }
+
+    @media (max-width: 768px) {
+        .sidebar {
+            width: 220px;
+        }
+        
+        .main-content {
+            margin-left: 220px;
+            padding: 20px;
+        }
+    }
+    </style>
+
+    <div class="main-content">
+        <div class="page-header">
+            <h1><i class="fas fa-file-invoice"></i> Create RFQ</h1>
+            <p>Request for Quotation - Send requests to vendors for products or services</p>
+        </div>
+
+        <div class="form-container">
+            <h3>RFQ Details</h3>
+            <form onsubmit="addRFQ(event)">
+                <div class="form-group">
+                    <label><i class="fas fa-heading"></i> RFQ Title</label>
+                    <input type="text" id="rfq-title" placeholder="Enter RFQ Title" required>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-info-circle"></i> Product / Service Details</label>
+                    <textarea id="rfq-details" rows="4" placeholder="Describe the product or service in detail" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-box"></i> Quantity</label>
+                    <input type="number" id="rfq-qty" min="1" placeholder="Enter Quantity" required>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-paperclip"></i> Upload Attachment</label>
+                    <input type="file" id="rfq-attachment">
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-calendar-alt"></i> Quotation Deadline</label>
+                    <input type="date" id="rfq-deadline" required>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-user-tie"></i> Assign Vendor</label>
+                    <select id="rfq-vendor" required>
+                        <option value="">Select Vendor</option>
+                        <option value="ABC Suppliers">ABC Suppliers</option>
+                        <option value="XYZ Traders">XYZ Traders</option>
+                        <option value="Global Tech">Global Tech</option>
+                        <option value="Prime Industries">Prime Industries</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="submit-btn">
+                    <i class="fas fa-check-circle"></i> Create RFQ
+                </button>
+            </form>
+        </div>
+
+        <div class="rfq-list-container">
+            <h3><i class="fas fa-list"></i> RFQ List</h3>
+            <ul id="rfqList">
+                <!-- RFQ items will be added here dynamically -->
+            </ul>
+        </div>
+    </div>
+
+    <script src="C:\Users\Asus\OneDrive\Desktop\hackathon\static\script.js"></script>
+    <script>
+    function sendRFQ() {
+        fetch("http://127.0.0.1:5000/rfq", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({
+                item: document.getElementById("item").value,
+                qty: document.getElementById("qty").value
+            })
+        })
+        .then(res => res.json())
+        .then(data => alert("RFQ Created!"));
+    }
+
+    function addRFQ(event) {
+        event.preventDefault();
+        
+        const rfqData = {
+            title: document.getElementById('rfq-title').value,
+            details: document.getElementById('rfq-details').value,
+            quantity: document.getElementById('rfq-qty').value,
+            deadline: document.getElementById('rfq-deadline').value,
+            vendor: document.getElementById('rfq-vendor').value
+        };
+
+        // Add RFQ to list
+        const rfqList = document.getElementById('rfqList');
+        const rfqItem = document.createElement('li');
+        rfqItem.innerHTML = `
+            <div class="rfq-item-title">${rfqData.title}</div>
+            <div class="rfq-item-details">
+                ${rfqData.details} | Quantity: ${rfqData.quantity} | Vendor: ${rfqData.vendor} | Deadline: ${rfqData.deadline}
+            </div>
+        `;
+        rfqList.appendChild(rfqItem);
+
+        // Show success message
+        alert('RFQ Created Successfully!');
+        
+        // Reset form
+        event.target.reset();
+    }
+    </script>
+</body>
+</html>

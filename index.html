@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VendorBridge Dashboard</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Layout */
+        body {
+            display: flex;
+            height: 100vh;
+            background: #f4f6f9;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: #1f2a40;
+            color: white;
+            padding: 20px;
+        }
+
+        .sidebar h2 {
+            margin-bottom: 30px;
+            color: #00c2ff;
+        }
+
+        .sidebar a {
+            display: block;
+            color: white;
+            text-decoration: none;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 8px;
+            transition: 0.3s;
+        }
+
+        .sidebar a:hover {
+            background: #00c2ff;
+        }
+
+        /* Main */
+        .main {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 22px;
+        }
+
+        /* Cards */
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .card h3 {
+            color: #1f2a40;
+        }
+
+        .card p {
+            font-size: 24px;
+            margin-top: 10px;
+            color: #00c2ff;
+        }
+
+        /* Sections */
+        .section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .section h2 {
+            margin-bottom: 15px;
+            color: #1f2a40;
+        }
+
+        /* Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table th,
+        table td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+
+        .status {
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+        }
+
+        .approved {
+            background: #d4f8d4;
+            color: green;
+        }
+
+        .pending {
+            background: #fff3cd;
+            color: #b58900;
+        }
+
+        /* Buttons */
+        button {
+            padding: 8px 12px;
+            border: none;
+            background: #00c2ff;
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #0099cc;
+        }
+
+        /* Responsive */
+        @media(max-width: 900px) {
+            .cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .sidebar {
+                width: 180px;
+            }
+        }
+    </style>
+<base href="./">
+</head>
+
+<body>
+
+
+
+    <div class="sidebar">
+    <h2>VendorBridge</h2>
+    
+    <!-- User Info (shows after login) -->
+    <div id="userInfo" style="padding: 15px; background: #2a3850; border-radius: 8px; margin-bottom: 20px; display: none;">
+        <p id="userName" style="font-weight: 600; margin-bottom: 5px;"></p>
+        <p id="userEmail" style="font-size: 12px; color: #00c2ff;"></p>
+    </div>
+
+    <a href="./index.html"><i class="fas fa-home"></i> Dashboard</a>
+    <a href="./vendors.html"><i class="fas fa-users"></i> Vendors</a>
+    <a href="./rfq.html"><i class="fas fa-file-invoice"></i> RFQ</a>
+    <a href="./quotations.html"><i class="fas fa-clipboard-list"></i> Quotations</a>
+    <a href="./po.html"><i class="fas fa-shopping-cart"></i> Purchase Orders</a>
+    <a href="./invoices.html"><i class="fas fa-receipt"></i> Invoices</a>
+    <a href="./tracking.html"><i class="fas fa-truck"></i> Tracking</a>
+    
+    <!-- Logout Button -->
+    <a href="#" id="logoutBtn" style="background: #dc3545; margin-top: 20px;"><i class="fas fa-sign-out-alt"></i> Logout</a>
+</div>
+
+<script>
+// Show user info after login
+function showUserInfo() {
+    const currentUser = localStorage.getItem('currentUser');
+    if (currentUser) {
+        const user = JSON.parse(currentUser);
+        document.getElementById('userInfo').style.display = 'block';
+        document.getElementById('userName').textContent = user.name || user.email;
+        document.getElementById('userEmail').textContent = user.email || '';
+    }
+}
+
+// Logout function
+document.getElementById('logoutBtn').addEventListener('click', function() {
+    if (confirm('Are you sure you want to logout?')) {
+        localStorage.removeItem('currentUser');
+        alert('Logged out successfully!');
+        window.location.href = './login.html';
+    }
+});
+
+// Show user info on page load
+showUserInfo();
+</script>
+
+
+    <!-- Main -->
+    <div class="main">
+
+        <div class="header">
+            <h1>Procurement Dashboard</h1>
+        </div>
+
+        <!-- Cards -->
+        <div class="cards">
+            <div class="card">
+                <h3>Vendors</h3>
+                <p>12</p>
+            </div>
+            <div class="card">
+                <h3>RFQs</h3>
+                <p>5</p>
+            </div>
+            <div class="card">
+                <h3>Quotations</h3>
+                <p>18</p>
+            </div>
+            <div class="card">
+                <h3>Invoices</h3>
+                <p>7</p>
+            </div>
+        </div>
+
+        <!-- RFQ Table -->
+        <div class="section">
+            <h2>Recent RFQs</h2>
+            <table>
+                <tr>
+                    <th>RFQ Title</th>
+                    <th>Vendor</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+
+                <tr>
+                    <td>Office Chairs</td>
+                    <td>ABC Suppliers</td>
+                    <td><span class="status pending">Pending</span></td>
+                    <td><button>View</button></td>
+                </tr>
+
+                <tr>
+                    <td>Laptops</td>
+                    <td>TechWorld</td>
+                    <td><span class="status approved">Approved</span></td>
+                    <td><button>View</button></td>
+                </tr>
+
+            </table>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="section">
+            <h2>Quick Actions</h2>
+
+            <button onclick="location.href='vendors.html'">Create Vendor</button>
+            <button onclick="location.href='rfq.html'">Create RFQ</button>
+            <button onclick="location.href='quotations.html'">Add Quotation</button>
+            <button onclick="location.href='po.html'">Generate PO</button>
+            <button onclick="location.href='invoices.html'">Create Invoice</button>
+        </div>
+
+    </div>
+    <script>
+// Check if user is logged in
+function checkLogin() {
+    const currentUser = localStorage.getItem('currentUser');
+    
+    if (!currentUser) {
+        // User not logged in - redirect to login page
+        window.location.href = './login.html';
+        return false;
+    }
+    
+    const user = JSON.parse(currentUser);
+    console.log('Logged in user:', user.name || user.email);
+    return true;
+}
+
+// Check login immediately when page loads
+checkLogin();
+</script>
+
+
+</body>
+
+</html>
